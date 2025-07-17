@@ -15,6 +15,7 @@
       width: 100vw;
       height: 100vh;
       overflow: hidden;
+      font-weight: 900;
     }
 
     .fullscreen-slide {
@@ -52,7 +53,7 @@
     }
 
     .time-part {
-      font-size: 56vw;
+      font-size: 27vh;
       font-family: 'Orbitron', monospace;
       font-weight: bold;
       color: #fff;
@@ -60,9 +61,10 @@
     }
 
     .ampm {
-      font-size: 5vw;
+      font-size: 4vw;
       color: #ccc;
       margin-bottom: 2vh;
+      margin-left: -16px;
     }
 
     .label {
@@ -211,11 +213,11 @@
     slides.forEach((s, idx) => s.classList.toggle('active', idx === i));
   }
 
-  // Auto-slide every 100s
+  // Auto-slide every 5s
   setInterval(() => {
     slideIndex = (slideIndex + 1) % slides.length;
     showSlide(slideIndex);
-  }, 100000);
+  }, 5000);
 
   // Slide on click
   document.body.addEventListener("click", () => {
