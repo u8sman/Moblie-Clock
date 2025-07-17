@@ -119,7 +119,7 @@
     }
 
     .prayer-time, .sun-time {
-      font-size: 6vh;
+      font-size: 5vh;
       margin: 1vh 0;
     }
 
@@ -209,33 +209,60 @@
   </div>
 
 <script>
-  const slides = document.querySelectorAll('.fullscreen-slide');
-  let slideIndex = 0;
+   const allSlides = Array.from(document.querySelectorAll('.fullscreen-slide'));
+    const clockSlide = document.getElementById('slide-clock');
 
-  function showSlide(i) {
-    slides.forEach((s, idx) => s.classList.toggle('active', idx === i));
-  }
-
-  // Auto-slide every 5s
-  setInterval(() => {
-    slideIndex = (slideIndex + 1) % slides.length;
-    showSlide(slideIndex);
-  }, 500000);
-
-  // Slide on click
-    let lastTap = 0;
-
-    function goToNextSlide() {
-      const now = Date.now();
-      if (now - lastTap < 200) return; // ignore if tapped too fast
-      lastTap = now;
-
-      slideIndex = (slideIndex + 1) % slides.length;
-      showSlide(slideIndex);
+    // Build auto pattern: [clock, slide2, clock, slide3, ...]
+    const autoPattern = [];
+    for (let s of allSlides) {
+      if (s !== clockSlide) {
+        autoPattern.push(clockSlide, s);
+      }
     }
 
-    document.addEventListener("click", goToNextSlide);
-    document.addEventListener("touchstart", goToNextSlide);
+    // Manual pattern: all slides in order
+    const manualPattern = [...allSlides];
+
+    let isManual = false;
+    let slideIndex = 0;
+
+    // Function to show slide from a pattern
+    function showSlide(index, pattern) {
+      allSlides.forEach(s => s.classList.remove('active'));
+      pattern[index % pattern.length].classList.add('active');
+    }
+
+    // Auto advance every 10s if not in manual mode
+    setInterval(() => {
+      if (!isManual) {
+        slideIndex++;
+        showSlide(slideIndex, autoPattern);
+      }
+    }, 10000);
+
+    // On user tap, switch to manual pattern and cycle forward
+    let lastTap = 0;
+    function nextManualSlide() {
+      const now = Date.now();
+      if (now - lastTap < 300) return;
+      lastTap = now;
+
+      if (!isManual) {
+        isManual = true;
+        slideIndex = 0; // restart manual from beginning
+      } else {
+        slideIndex++;
+      }
+
+      showSlide(slideIndex, manualPattern);
+    }
+
+    document.addEventListener("click", nextManualSlide);
+    document.addEventListener("touchstart", nextManualSlide);
+
+    // Initial show
+    showSlide(0, autoPattern);
+
 
   function updateClock() {
     const now = new Date();
