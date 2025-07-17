@@ -68,7 +68,6 @@
       font-size: 4vw;
       color: #ccc;
       margin-bottom: 2vh;
-      margin-left: -16px;
     }
 
     .label {
@@ -221,13 +220,22 @@
   setInterval(() => {
     slideIndex = (slideIndex + 1) % slides.length;
     showSlide(slideIndex);
-  }, 5000);
+  }, 500000);
 
   // Slide on click
-  document.body.addEventListener("click", () => {
-    slideIndex = (slideIndex + 1) % slides.length;
-    showSlide(slideIndex);
-  });
+    let lastTap = 0;
+
+    function goToNextSlide() {
+      const now = Date.now();
+      if (now - lastTap < 200) return; // ignore if tapped too fast
+      lastTap = now;
+
+      slideIndex = (slideIndex + 1) % slides.length;
+      showSlide(slideIndex);
+    }
+
+    document.addEventListener("click", goToNextSlide);
+    document.addEventListener("touchstart", goToNextSlide);
 
   function updateClock() {
     const now = new Date();
