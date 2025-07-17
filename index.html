@@ -209,59 +209,72 @@
   </div>
 
 <script>
-   const allSlides = Array.from(document.querySelectorAll('.fullscreen-slide'));
-    const clockSlide = document.getElementById('slide-clock');
+const allSlides = Array.from(document.querySelectorAll('.fullscreen-slide'));
+const clockSlide = document.getElementById('slide-clock');
 
-    // Build auto pattern: [clock, slide2, clock, slide3, ...]
-    const autoPattern = [];
-    for (let s of allSlides) {
-      if (s !== clockSlide) {
-        autoPattern.push(clockSlide, s);
-      }
+// Auto mode: [clock, slide2, clock, slide3...]
+const autoPattern = [];
+for (let s of allSlides) {
+  if (s !== clockSlide) {
+    autoPattern.push(clockSlide, s);
+  }
+}
+
+// Manual mode: [slide1, slide2, slide3...]
+const manualPattern = [...allSlides];
+
+let isManual = false;
+let slideIndex = 0;
+let lastManualTime = 0;
+
+// Show slide based on current pattern
+function showSlide(index, pattern) {
+  allSlides.forEach(s => s.classList.remove('active'));
+  pattern[index % pattern.length].classList.add('active');
+}
+
+// Tick every second
+setInterval(() => {
+  const now = Date.now();
+
+  if (isManual) {
+    // Auto-return to auto mode if 5s pass with no tap
+    if (now - lastManualTime > 5000) {
+      isManual = false;
+      slideIndex = 0; // reset auto pattern index
+      showSlide(slideIndex, autoPattern);
     }
+  } else {
+    // Normal auto-advance every 10s
+    slideIndex++;
+    showSlide(slideIndex, autoPattern);
+  }
+}, 5000);
 
-    // Manual pattern: all slides in order
-    const manualPattern = [...allSlides];
+// Manual tap: go to next manual slide
+function nextManualSlide() {
+  const now = Date.now();
 
-    let isManual = false;
-    let slideIndex = 0;
+  // Debounce quick taps
+  if (now - lastManualTime < 300) return;
+  lastManualTime = now;
 
-    // Function to show slide from a pattern
-    function showSlide(index, pattern) {
-      allSlides.forEach(s => s.classList.remove('active'));
-      pattern[index % pattern.length].classList.add('active');
-    }
+  if (!isManual) {
+    isManual = true;
+    slideIndex = 0;
+  } else {
+    slideIndex++;
+  }
 
-    // Auto advance every 10s if not in manual mode
-    setInterval(() => {
-      if (!isManual) {
-        slideIndex++;
-        showSlide(slideIndex, autoPattern);
-      }
-    }, 10000);
+  showSlide(slideIndex, manualPattern);
+}
 
-    // On user tap, switch to manual pattern and cycle forward
-    let lastTap = 0;
-    function nextManualSlide() {
-      const now = Date.now();
-      if (now - lastTap < 300) return;
-      lastTap = now;
+document.addEventListener("click", nextManualSlide);
+document.addEventListener("touchstart", nextManualSlide);
 
-      if (!isManual) {
-        isManual = true;
-        slideIndex = 0; // restart manual from beginning
-      } else {
-        slideIndex++;
-      }
+// Initial display
+showSlide(0, autoPattern);
 
-      showSlide(slideIndex, manualPattern);
-    }
-
-    document.addEventListener("click", nextManualSlide);
-    document.addEventListener("touchstart", nextManualSlide);
-
-    // Initial show
-    showSlide(0, autoPattern);
 
 
   function updateClock() {
@@ -406,6 +419,14 @@
 
 
 
+</script>
+<script>
+  // ... your slide logic, clock update, weather, etc.
+
+  // Auto-refresh page every 10 minutes
+  setTimeout(() => {
+    location.reload();
+  }, 600000);
 </script>
 
 </body>
